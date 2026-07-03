@@ -8,3 +8,8 @@ const PORT =  5000;
 app.get('/', (req, res) => {
   res.send('TicketFlow API is running');
 });
+
+app.listen(PORT , ()=>{
+  console.log(`Server listening to PORT ${PORT}`);
+  
+})
