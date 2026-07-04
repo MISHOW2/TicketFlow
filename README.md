@@ -3,7 +3,6 @@
 > An IT support ticketing system — built full stack while learning React deeply.
 > Users log support tickets; agents and admins manage, assign, and resolve them.
 
-*(Rename this if you land on a different project name — just keep it consistent across the repo, folder name, and any deployment.)*
 
 ---
 
@@ -91,7 +90,33 @@ _Coming soon as frontend is built._
 
 ## What I Learned
 
-_This section is for you — as you build, jot down real takeaways: tricky bugs you solved, concepts that finally clicked (e.g. protected routes, JWT flow, SQL joins), and decisions you'd make differently next time. This section is often what makes recruiters actually read the whole README._
+Architecture & Design Patterns
+
+Layered architecture: routes → middleware → controllers → services → repositories, each with a single responsibility
+Repository pattern: isolating data access so swapping mock data for PostgreSQL later won't touch business logic or routes
+Why business rules (domain checks, duplicate checks, password matching) belong in the service layer, not the repository — repositories should stay "dumb" and only handle storage
+
+Security Concepts
+
+Never send password hashes back in API responses, even hashed ones
+Password hashing with bcrypt — hash before storage, compare on login (never store or compare plain text)
+JWT payload design: only include what's needed for identity + authorization (id, role) — never include PII or data that can go stale (email, name), since the token can't be updated once issued and lives for its full expiry
+User enumeration prevention: using the same generic error message for "user not found" and "wrong password," and for "email already registered," so attackers can't probe which emails exist in your system
+Rate limiting to prevent abuse/spam on sensitive endpoints like registration
+Fail loudly on missing server configuration (ALLOWED_EMAIL_DOMAIN, JWT_SECRET) rather than silently misbehaving
+Input validation at multiple layers: required fields, domain whitelisting, password strength requirements, department whitelisting
+
+Data Integrity
+
+Email normalization (.trim().toLowerCase()) to prevent duplicate accounts differing only by case
+Explicit field destructuring in repository functions so unexpected/malicious fields can't sneak into stored objects
+Keeping ID generation and default field values (role, createdAt) centralized in the repository, not scattered across every caller
+
+Tooling & Workflow
+
+Git commit discipline: small, logical, well-labeled commits (Conventional Commits style) that tell a story of incremental progress
+Postman for manually testing edge cases before considering a feature "done" — not just the happy path, but failure modes too
+Using .env for configuration/secrets, and guarding against missing required env vars
 
 ---
 
