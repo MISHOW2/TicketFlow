@@ -14,7 +14,7 @@ export function validateCompanyEmail(req, res, next) {
       message: "Email is required",
     });
   }
-  const domain = email?.split("@")[1];
+  const domain = email?.split("@")[1]?.toLowerCase();
 
   if (domain !== allowedDomain) {
     return res.status(400).json({

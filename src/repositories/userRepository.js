@@ -6,16 +6,16 @@ export function getUserByEmail(email) {
   return users.find(u => u.email === email);
 }
 
-export function createUser(user) {
+export function createUser({ name, email, department, password }) {
   const newUser = {
     id: users.length + 1,
-    ...user,
+    name,
+    email,
+    department,
+    password,
     role: "user",
     createdAt: new Date().toISOString()
   };
-
   users.push(newUser);
-  console.log(newUser);
-  
   return newUser;
 }

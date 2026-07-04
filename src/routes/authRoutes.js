@@ -10,10 +10,10 @@ const router = express.Router();
 
 router.post(
   '/signup',
-  validateCompanyEmail,
-  validatePassword,
-  registerLimiter,
-  register
+  registerLimiter,        // stop abuse before doing any real work
+  validateCompanyEmail,   // reject obviously wrong domains early
+  validatePassword,       // then check password strength
+  register                // only reach business logic if all checks pass
 );
 
 export default router;

@@ -1,3 +1,5 @@
+//src\middlewares\authMiddleWare\registerLimiter.js
+
 import rateLimit from "express-rate-limit";
 
 export const registerLimiter = rateLimit({
