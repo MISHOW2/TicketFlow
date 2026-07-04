@@ -2,7 +2,9 @@
 
 import bcrypt from "bcrypt";
 import * as userRepository from "../repositories/userRepository.js";
-
+import { validateFieldInputs } from "../validation/validateFieldInputs.js";
+import { ALLOWED_DEPARTMENTS } from "../constants/departments.js";
+import jwt from "jsonwebtoken";
 export async function registerUser({
   name,
   email,
@@ -10,32 +12,25 @@ export async function registerUser({
   password,
   rePassword,
 }) {
-  // Validate required fields
-  if (
-    !name?.trim() ||
-    !email?.trim() ||
-    !department?.trim() ||
-    !password?.trim() ||
-    !rePassword?.trim()
-  ) {
-    throw new Error("All fields are required");
-  }
+  validateFieldInputs({
+    name,
+    email,
+    department,
+    password,
+    rePassword,
+  });
 
   // Normalize values
   email = email.trim().toLowerCase();
   department = department.trim().toLowerCase();
 
-  // Validate department
-  const allowedDepartments = [
-    "safety",
-    "it",
-    "finance",
-    "hr",
-  ];
 
-  if (!allowedDepartments.includes(department)) {
-    throw new Error("Invalid department");
-  }
+  // Validate department
+ 
+if (!ALLOWED_DEPARTMENTS.includes(department)) {
+  throw new Error("Invalid department");
+}
+
 
   // Validate password confirmation
   if (password !== rePassword) {
@@ -61,4 +56,32 @@ export async function registerUser({
     department,
     password: hashedPassword,
   });
+}
+
+export async function userLogin({ email, password, }) {
+   validateFieldInputs({ email, password });
+  
+   email = email.trim().toLowerCase();
+ 
+  const user = await userRepository.getUserByEmail(email);
+  // Validate required fields
+
+  if(!user) throw new Error("Invalid email or password");
+
+  //validate password if they match or not
+  
+  const isMatch = await bcrypt.compare(password, user.password)
+  
+  if(!isMatch) throw new Error("Invalid email or password");
+  
+  if (!process.env.JWT_SECRET) {
+  throw new Error("Server configuration error");
+}
+  const token = jwt.sign(
+  { id: user.id, role: user.role },
+  process.env.JWT_SECRET,
+  { expiresIn: "1h" }
+);
+  return {user , token}
+
 }

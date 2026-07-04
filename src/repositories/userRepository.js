@@ -19,3 +19,4 @@ export function createUser({ name, email, department, password }) {
   users.push(newUser);
   return newUser;
 }
+
