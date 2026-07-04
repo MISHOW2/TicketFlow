@@ -1,15 +1,23 @@
-import express from 'express'
+import express from 'express';
+import dotenv from 'dotenv';
 
-// use express method
+import authRoutes from './routes/authRoutes.js';
+
+
+
+dotenv.config();
+
 const app = express();
-const PORT =  5000;
+const PORT = process.env.PORT;
 
 app.use(express.json());
+
 app.get('/', (req, res) => {
   res.send('TicketFlow API is running');
 });
 
-app.listen(PORT , ()=>{
-  console.log(`Server listening to PORT ${PORT}`);
-  
-})
+app.use('/api/auth/', authRoutes)
+
+app.listen(PORT, () => {
+  console.log(`Server listening on PORT ${PORT}`);
+});

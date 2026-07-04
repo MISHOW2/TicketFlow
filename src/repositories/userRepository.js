@@ -7,12 +7,13 @@ export function getUserByEmail(email) {
 }
 
 export function createUser(user) {
-
-  users.push({
-     id: users.length + 1,
+  const newUser = {
+    id: users.length + 1,
     ...user,
     role: "user",
     createdAt: new Date().toISOString()
-  });
-  return user;
+  };
+
+  users.push(newUser);
+  return newUser;
 }
