@@ -15,5 +15,7 @@ export function createUser(user) {
   };
 
   users.push(newUser);
+  console.log(newUser);
+  
   return newUser;
 }
