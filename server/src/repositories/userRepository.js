@@ -1,6 +1,6 @@
 //repositories/userRepositories
 
-import { users } from "../data/data.js";
+import { users } from "../data/users.js";
 
 export function getUserByEmail(email) {
   return users.find(u => u.email === email);
