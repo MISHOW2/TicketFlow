@@ -1,26 +1,64 @@
 import { useState } from "react";
-import "./TicketFlowAuth.css";
+import "./LoginPage.css";
+import { signup, login } from "../api/authServices";
 
-export default function TicketFlowAuth() {
+export default function LoginPage() {
   const [mode, setMode] = useState("signin"); // "signin" | "register"
+  const isSignIn = mode === "signin";
+
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
+    department: "",
     password: "",
-    confirmPassword: "",
+    rePassword: "",
   });
-
-  const isSignIn = mode === "signin";
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: connect to your backend auth endpoint
-    // e.g. fetch('/api/auth/signin', { method: 'POST', body: JSON.stringify(form) })
-    console.log(isSignIn ? "Signing in..." : "Registering...", form);
+    setError("");
+
+    if (isSignIn) {
+      try {
+        setLoading(true);
+        const { user, token } = await login(form.email, form.password);
+        localStorage.setItem("token", token);
+        // TODO: redirect to dashboard, e.g. navigate("/dashboard")
+        console.log("Logged in:", user);
+      } catch (err) {
+        setError(err.response?.data?.message || "Invalid email or password.");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    if (form.password !== form.rePassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await signup(
+        form.name,
+        form.email,
+        form.department,
+        form.password,
+        form.rePassword
+      );
+      // TODO: redirect or switch to signin on success
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,8 +115,10 @@ export default function TicketFlowAuth() {
               : "Register to start tracking tickets."}
           </p>
 
+          {error && <p className="tf-error">{error}</p>}
+
           {/* Form */}
-          <form onSubmit={handleSubmit} className="tf-form">
+          <form className="tf-form" onSubmit={handleSubmit}>
             {!isSignIn && (
               <div className="tf-field">
                 <label htmlFor="name" className="tf-label">
@@ -109,6 +149,26 @@ export default function TicketFlowAuth() {
               />
             </div>
 
+            {!isSignIn && (
+              <div className="tf-field">
+                <label htmlFor="department" className="tf-label">
+                  Department
+                </label>
+                <select
+                  id="department"
+                  className="tf-input"
+                  value={form.department}
+                  onChange={handleChange("department")}
+                >
+                  <option value="">Select a department</option>
+                  <option value="safety">Safety</option>
+                  <option value="it">IT</option>
+                  <option value="finance">Finance</option>
+                  <option value="hr">HR</option>
+                </select>
+              </div>
+            )}
+
             <div className="tf-field">
               <label htmlFor="password" className="tf-label">
                 Password
@@ -129,14 +189,32 @@ export default function TicketFlowAuth() {
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
                       <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
                       <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
                       <line x1="2" y1="2" x2="22" y2="22" />
                     </svg>
                   ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
@@ -147,22 +225,22 @@ export default function TicketFlowAuth() {
 
             {!isSignIn && (
               <div className="tf-field">
-                <label htmlFor="confirmPassword" className="tf-label">
+                <label htmlFor="rePassword" className="tf-label">
                   Confirm password
                 </label>
                 <input
-                  id="confirmPassword"
+                  id="rePassword"
                   type={showPassword ? "text" : "password"}
                   placeholder="Re-enter your password"
-                  value={form.confirmPassword}
-                  onChange={handleChange("confirmPassword")}
+                  value={form.rePassword}
+                  onChange={handleChange("rePassword")}
                   className="tf-input"
                 />
               </div>
             )}
 
-            <button type="submit" className="tf-submit">
-              {isSignIn ? "Sign in" : "Create account"}
+            <button type="submit" className="tf-submit" disabled={loading}>
+              {loading ? "Please wait..." : isSignIn ? "Sign in" : "Create account"}
             </button>
           </form>
 

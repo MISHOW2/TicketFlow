@@ -1,5 +1,4 @@
 //repositories/userRepositories
-
 import { users } from "../data/users.js";
 
 export function getUserByEmail(email) {

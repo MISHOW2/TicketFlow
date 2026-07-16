@@ -64,7 +64,9 @@
   padding: 24px;
   box-sizing: border-box;
 }
-
+.tf-error{
+  color: white;
+}
 /* Tabs */
 .tf-tabs {
   display: grid;

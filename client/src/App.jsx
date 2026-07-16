@@ -1,10 +1,16 @@
-import TicketFlowAuth from "./TikcketFlowAuth"
+import LoginPage from "./pages/LoginPage";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
-
   return (
-   <TicketFlowAuth/>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/">
+          <Route index element={<LoginPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
